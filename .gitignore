@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+MODEL/
+NLIMODEL/
+*.zip
+*.log
+.DS_Store
+.ipynb_checkpoints/
+*.safetensors
+.env
