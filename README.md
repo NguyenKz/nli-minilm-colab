@@ -9,9 +9,7 @@ Fine-tune `microsoft/MiniLM-L12-H384-uncased` (~33M params, under 40M) for Engli
 
 Or open directly:
 
-```text
-https://colab.research.google.com/github/<USER>/nli-minilm-colab/blob/main/train_colab.ipynb
-```
+[Open in Colab](https://colab.research.google.com/github/NguyenKz/nli-minilm-colab/blob/main/train_colab.ipynb)
 
 ## Local
 
