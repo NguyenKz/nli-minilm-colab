@@ -171,7 +171,7 @@ def main():
         weight_decay=0.01,
         num_train_epochs=args.epochs,
         lr_scheduler_type="cosine",
-        evaluation_strategy="epoch",
+        eval_strategy="epoch",
         save_strategy="epoch",
         save_total_limit=2,
         logging_steps=200,
