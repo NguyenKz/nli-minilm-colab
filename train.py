@@ -6,6 +6,7 @@ Saves ./MODEL for CodaBench: zip model.py + MODEL/ then submit.
 import argparse
 import os
 import zipfile
+from pathlib import Path
 
 import evaluate
 import numpy as np
@@ -27,6 +28,13 @@ def parse_args():
     p.add_argument("--lr", type=float, default=2e-5)
     p.add_argument("--output-dir", default="./NLIMODEL")
     p.add_argument("--model-dir", default="./MODEL")
+    p.add_argument(
+        "--resume",
+        nargs="?",
+        const="auto",
+        default=None,
+        help="resume from a checkpoint; without a value, use the newest one",
+    )
     p.add_argument("--no-snli", action="store_true")
     p.add_argument("--max-train-samples", type=int, default=0, help="0 = all")
     return p.parse_args()
@@ -105,6 +113,17 @@ def zip_submission(model_dir, out_zip="submission.zip"):
                 arc = os.path.relpath(path, start=".")
                 zf.write(path, arcname=arc)
     print(f"Wrote {out_zip} ({os.path.getsize(out_zip) / 1e6:.1f} MB)")
+
+
+def newest_checkpoint(output_dir):
+    checkpoints = [
+        path
+        for path in Path(output_dir).glob("checkpoint-*")
+        if path.name.rsplit("-", 1)[-1].isdigit()
+    ]
+    if not checkpoints:
+        raise FileNotFoundError(f"No checkpoint-* found in {output_dir}")
+    return str(max(checkpoints, key=lambda path: int(path.name.rsplit("-", 1)[-1])))
 
 
 def main():
@@ -188,7 +207,15 @@ def main():
         data_collator=collate_fn,
         compute_metrics=compute_metrics,
     )
-    trainer.train()
+    resume_from = None
+    if args.resume:
+        resume_from = (
+            newest_checkpoint(args.output_dir)
+            if args.resume == "auto"
+            else args.resume
+        )
+        print(f"Resuming from: {resume_from}")
+    trainer.train(resume_from_checkpoint=resume_from)
 
     os.makedirs(args.model_dir, exist_ok=True)
     tokenizer.save_pretrained(args.model_dir)
